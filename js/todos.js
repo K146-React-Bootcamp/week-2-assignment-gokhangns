@@ -6,7 +6,10 @@ const editModal = document.querySelector("#editModal");
 let todos = [];
 let todo;
 
-const renderTodos = () => {
+let current_page = 1;
+let rows = 20;
+const renderTodos = (page = 1) => {
+	
 	root.innerHTML = "";
 	// todoları listele
 	const table = document.createElement("table");
@@ -15,9 +18,10 @@ const renderTodos = () => {
 	const thead = document.createElement("thead");
 	thead.innerHTML = `
     <tr>
-      <th scope="col">id</th>
-      <th scope="col">Başlık</th>
-      <th scope="col">Kullanıcı Id</th>
+	  <th scope="col" id="title-sorting-1">id <button>&darr;</button></th>
+      <th scope="col" id="title-sorting-2">Başlık <button>&darr;</button></th>
+	  <th scope="col" id="title-sorting-3">Kullanıcı<button>&darr;</button></th>
+      <th scope="col" id="title-sorting-4">ıd <button>&darr;</button></th>
       <th scope="col">Durum</th>
       <th scope="col"></th>
     </tr>
@@ -43,7 +47,15 @@ const renderTodos = () => {
     `;
 		tbody.appendChild(tr);
 	};
-	todos.slice(0, 15).forEach((item) => {
+
+	page --;
+
+	let start = rows * page;
+	console.log({start});
+	let end = start + rows;
+	console.log({end});
+	let paginatedItems = todos.slice(start, end);
+	paginatedItems.forEach((item) => {
 		renderItem(item);
 	});
 	table.appendChild(tbody);
@@ -54,7 +66,7 @@ const renderTodos = () => {
 			const id = Number(e.currentTarget.getAttribute("data-id"));
 			if (confirm("kaydı silmek istediğinize emin misiniz?")) {
 				todos = todos.filter((x) => x.id !== id);
-				renderTodos();
+				renderTodos(current_page);
 			}
 		});
 	});
@@ -69,7 +81,33 @@ const renderTodos = () => {
 			editModal.classList.add("show");
 		});
 	});
+
+	Document.querySelector('#title-sorting-2').addEventListener('click',() => {
+			todos.sort((a, b) => {
+					const nameA = a.title.toUpperCase(); 
+			const nameB = b.title.toUpperCase(); 
+			if (nameA < nameB) {
+			  return -1;
+			}
+			if (nameA > nameB) {
+			  return 1;
+			}d
+			return 0;
+		  });
+		  renderTodos(current_page);
+	});
 };
+
+
+
+
+document.querySelectorAll('.page-link').forEach((btn) => {
+	btn.addEventListener('click',() => {
+		let data_id = btn.getAttribute('data-id');
+		current_page = Number(data_id);
+		renderTodos(current_page);
+	});
+});
 
 editModal.querySelector("#save").addEventListener("click", () => {
 	todo.title = editModal.querySelector("#title").value;
